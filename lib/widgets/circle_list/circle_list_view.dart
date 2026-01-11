@@ -3,13 +3,13 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_dimensions.dart';
 import 'circle_list_item.dart';
 
-/// Vertical list used to display selectable circle items
-/// Scrolling is controlled by the parent widget
+/// Vertical list of selectable circles
 class CircleListView extends StatelessWidget {
   final ScrollController controller;
   final List<int> items;
   final int selectedIndex;
-  final Function(int) onItemTap;
+  final ValueChanged<int> onItemTap;
+  final ScrollPhysics physics;
 
   const CircleListView({
     super.key,
@@ -17,23 +17,26 @@ class CircleListView extends StatelessWidget {
     required this.items,
     required this.selectedIndex,
     required this.onItemTap,
+    this.physics = const NeverScrollableScrollPhysics(),
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: AppDimensions.circleListWidth,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+          borderRadius: BorderRadius.circular(
+            AppDimensions.radiusS,
+          ),
         ),
         child: ListView.builder(
           controller: controller,
-          physics: const NeverScrollableScrollPhysics(),
+          physics: physics,
           padding: EdgeInsets.zero,
           itemCount: items.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (_, index) {
             return CircleListItem(
               itemNumber: items[index],
               isSelected: index == selectedIndex,
