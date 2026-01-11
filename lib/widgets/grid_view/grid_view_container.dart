@@ -4,18 +4,21 @@ import '../../constants/app_spacing.dart';
 import 'grid_container_item.dart';
 import 'grid_loading_placeholder.dart';
 
-/// Grid container used to display items in a fixed 2-column layout
-/// Scrolling is handled by the parent; this grid only builds content
+/// Stateless grid used by the synchronized layout
 class GridViewContainer extends StatelessWidget {
   final ScrollController controller;
   final List<int> items;
   final bool isPaging;
+  final ScrollPhysics physics;
+  final bool shrinkWrap;
 
   const GridViewContainer({
     super.key,
     required this.controller,
     required this.items,
     required this.isPaging,
+    this.physics = const NeverScrollableScrollPhysics(),
+    this.shrinkWrap = true,
   });
 
   @override
@@ -24,25 +27,32 @@ class GridViewContainer extends StatelessWidget {
       margin: AppSpacing.marginHorizontalM,
       child: GridView.builder(
         controller: controller,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        cacheExtent: 500,
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: true,
+        addSemanticIndexes: false,
         padding: EdgeInsets.only(
           bottom: isPaging
-              ? AppDimensions.loadingIndicatorSize + AppSpacing.paddingM * 2
+              ? AppDimensions.loadingIndicatorSize +
+                  AppSpacing.paddingM * 2
               : 0,
         ),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: AppDimensions.gridCrossAxisCount,
           crossAxisSpacing: AppDimensions.gridCrossAxisSpacing,
           mainAxisSpacing: AppDimensions.gridMainAxisSpacing,
           childAspectRatio: AppDimensions.gridChildAspectRatio,
         ),
         itemCount: items.isEmpty ? 2 : items.length,
-        itemBuilder: (context, index) {
+        itemBuilder: (_, index) {
           if (items.isEmpty) {
             return const GridLoadingPlaceholder();
           }
-          return GridContainerItem(itemNumber: items[index]);
+          return GridContainerItem(
+            itemNumber: items[index],
+          );
         },
       ),
     );
